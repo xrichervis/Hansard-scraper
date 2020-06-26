@@ -1,2 +1,3 @@
-# Hansard-scraper
-This is the beginnings of the scraper I will use to collect data from Hansard. 
+# Hansard Database Scraper
+
+This is the web scraper I hope to use over the course of my time with Airwars. 
