@@ -14,12 +14,12 @@ time.sleep(1)
 print("Scraping some data...")
 
 # the range will be the number of pages that your search returns
-for i in range(2):
+for i in range(XXX):
 
     page = i
 
     # add your url here // MAKE SURE THE "PARTIAL" PARAMETER EQUALS "TRUE" AND NOT "FALSE" otherwise scraping will return only blank values
-    url = "https://hansard.parliament.uk/search/Contributions?startDate=2010-06-16&endDate=2020-06-25&searchTerm=%22civilian%20casualties%22&partial=True" + "&page=" + str(page)
+    url = "XXX" + "&page=" + str(page)
 
     response = get(url)
 
