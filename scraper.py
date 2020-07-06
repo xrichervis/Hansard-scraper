@@ -13,53 +13,62 @@ time.sleep(1)
 
 print("Scraping some data...")
 
-
-# For this test, I'm collecting only the first 16 pages
-for i in range(1,15):
+# the range will be the number of pages that your search returns
+for i in range(2):
 
     page = i
 
-    # url which displays the data I'm looking for
-    url = "https://hansard.parliament.uk/search/Contributions?endDate=2020-06-25&page=" + str(page) + "&searchTerm=%22civilian+casualties%22&startDate=2015-06-25&partial=True"
+    # add your url here // MAKE SURE THE "PARTIAL" PARAMETER EQUALS "TRUE" AND NOT "FALSE" otherwise scraping will return only blank values
+    url = "https://hansard.parliament.uk/search/Contributions?startDate=2010-06-16&endDate=2020-06-25&searchTerm=%22civilian%20casualties%22&partial=True" + "&page=" + str(page)
 
     response = get(url)
 
-    # Parse the content of the request with BeautifulSoup
+    # BeautifulSoup is required for this scraper
     html_soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Select all the 20 mention mention_containerss from a single page
-    mention_containers = html_soup.find_all('div', class_ = "result contribution")
+    # finds all the little contrainers that contain the data we want
+    mention_containers = html_soup.find_all('div', class_="result contribution")
 
-# I need to get data on each "container" of data: so for every mention
+    # so for every mention we want to collect:
     for y in range((len(mention_containers))):
 
-                mention = mention_containers[y]
+        mention = mention_containers[y]
 
-                # the topic wherein civilian casualties was mentionned
-                topic = mention.div.span.text
-                topics.append(topic)
+        # the topic wherein civilian casualties was mentionned;
+        topic = mention.div.span.text
+        topics.append(topic)
 
-                # an SVG of either a Commons or Lords portcullis to designate
-                # whether this mention was made in the House of Lords or House of Commons
+        # either a Commons or Lords portcullis which designates which house of Parliament this mention was made
+        house = mention.find("img")["alt"]
 
-                house = mention.find("img")["alt"]
-                houses.append(house)
+        #  and we then assign a text value to that image;
+        if house == "Lords Portcullis":
+            houses.append("House of Lords")
+        elif house == "Commons Portcullis":
+            houses.append("House of Commons")
+        else:
+            houses.append("N/A")
 
-                # which MP or Lord mentionned civilian casualties
-                name = mention.find('div', class_ = "secondaryTitle").text
-                names.append(name)
+        # which MP or Lord mentionned civilian casualties;
+        name = mention.find('div', class_="secondaryTitle").text
+        names.append(name)
 
-                # what day this was
-                date = mention.find('div', class_ = "").text
-                dates.append(date)
+        # the date this mention was made;
+        date = mention.find('div', class_="").text
+        dates.append(date)
 
-# turning my data into columns
-hansard_dataset = pd.DataFrame({'Date': dates, 'House': houses, 'Speaker': names, 'Topic': topics})
+# turns your data into proper columns
+hansard_dataset = pd.DataFrame(
+    {'Date': dates, 'House': houses, 'Speaker': names, 'Topic': topics})
 
+# allows us to check if we collected the correct amount of data we were expecting
 print(hansard_dataset.info())
 
 print("Turning this into a CSV...")
 
 time.sleep(1)
 
+# converts your pandas dataframe into a proper csv, separated with a hashtag to allow for easy delimitation when imported into an Excel spreadsheet or Google Sheet
 hansard_dataset.to_csv('hansard.csv', index=False, sep="#")
+
+# data this scraper collects with still need to be cleaned, but it's a good start 
