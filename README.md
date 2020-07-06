@@ -1,3 +1,2 @@
 # Hansard Database Scraper
-
-This is the web scraper I hope to use over the course of my time with Airwars. 
+This is the Web Scraper I'm using as part of my time with Airwars. Inspired by <a href="https://twitter.com/donations_bot">this IMDB scraper</a>
