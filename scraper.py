@@ -1,15 +1,21 @@
 from requests import get
 from bs4 import BeautifulSoup
 import pandas as pd
+import time
 
 # lists which will become columns
 topics = []
+houses = []
 names = []
 dates = []
-quotes = []
+
+time.sleep(1)
+
+print("Scraping some data...")
+
 
 # For this test, I'm collecting only the first 16 pages
-for i in range(1,16):
+for i in range(1,15):
 
     page = i
 
@@ -33,6 +39,12 @@ for i in range(1,16):
                 topic = mention.div.span.text
                 topics.append(topic)
 
+                # an SVG of either a Commons or Lords portcullis to designate
+                # whether this mention was made in the House of Lords or House of Commons
+
+                house = mention.find("img")["alt"]
+                houses.append(house)
+
                 # which MP or Lord mentionned civilian casualties
                 name = mention.find('div', class_ = "secondaryTitle").text
                 names.append(name)
@@ -41,13 +53,13 @@ for i in range(1,16):
                 date = mention.find('div', class_ = "").text
                 dates.append(date)
 
-                # what was the fuller context of this mention
-                quote = mention.find('div', class_ = "content hidden-xs").text
-                quotes.append(quote)
-
 # turning my data into columns
-hansard_dataset = pd.DataFrame({'Date': dates, 'Speaker': names, 'Topic': topics, 'Full Quote': quotes})
+hansard_dataset = pd.DataFrame({'Date': dates, 'House': houses, 'Speaker': names, 'Topic': topics})
 
 print(hansard_dataset.info())
 
-print(hansard_dataset)
+print("Turning this into a CSV...")
+
+time.sleep(1)
+
+hansard_dataset.to_csv('hansard.csv', index=False, sep="#")
