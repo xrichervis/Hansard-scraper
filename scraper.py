@@ -1,74 +1,76 @@
-from requests import get
-from bs4 import BeautifulSoup
+import requests
 import pandas as pd
-import time
+from bs4 import BeautifulSoup
 
-# lists which will become columns
-topics = []
-houses = []
-names = []
-dates = []
+def getNumbers(text):
+    result =[]
+    numberStr = ""
+    for char in text:
+        if char >= '0' and char <='9':
+            numberStr += char
+        elif numberStr: #if numberStr is not emprty
+            result.append(numberStr)
+            numberStr=""
+        if numberStr: # if numberStr is not empty after loop ended
+            result += [numberStr] # alternative to appened
+    return result
 
-time.sleep(1)
+s = open("term_file.txt", "r")
+m = s.read().splitlines()
 
-print("Scraping some data...")
+for i in range (0, len(m)):
+    x = m[i]
+    print ("Searching for data relating to the search term: " + x )
 
-# the range will be the number of pages that your search returns
-for i in range(XXX):
+    search_query = '"' + x + '"'
 
-    page = i
+    url = 'https://hansard.parliament.uk/search/Contributions'
+    # MM/DD/YYYY
+    params = {
+        'searchTerm': search_query,
+        'startDate':'01/01/1980 00:00:00',
+        'endDate':'07/18/2020 00:00:00',
+        'partial':'True',
+        'page':1,
+    }
 
-    # add your url here // MAKE SURE THE "PARTIAL" PARAMETER EQUALS "TRUE" AND NOT "FALSE" otherwise scraping will return only blank values
-    url = "XXX" + "&page=" + str(page)
+    soup = BeautifulSoup(requests.get(url, params=params).content, 'html.parser')
+    pageStr = soup.find_all('p', class_="pagination-total")[0].getText()
+    numberList = getNumbers(pageStr)
+    pages = int(numberList[-1]) + int(1)
 
-    response = get(url)
+    all_data = []
 
-    # BeautifulSoup is required for this scraper
-    html_soup = BeautifulSoup(response.text, 'html.parser')
+    # number of pages a search returns
+    for page in range(1, int(pages)):
+        params['page'] = page
 
-    # finds all the little contrainers that contain the data we want
-    mention_containers = html_soup.find_all('div', class_="result contribution")
+        print('Page {}...'.format(page))
 
-    # so for every mention we want to collect:
-    for y in range((len(mention_containers))):
+        soup = BeautifulSoup(requests.get(url, params=params).content, 'html.parser')
+        mention_containers = soup.find_all('div', class_="result contribution")
+        if not mention_containers:
+            print('Empty container!')
 
-        mention = mention_containers[y]
+        for mention in mention_containers:
+            topic = mention.div.span.text
+            house = mention.find("img")["alt"]
 
-        # the topic wherein civilian casualties was mentionned;
-        topic = mention.div.span.text
-        topics.append(topic)
+            if house == "Lords Portcullis":
+                 house = "House of Lords"
+            elif house == "Commons Portcullis":
+                 house = "House of Commons"
+            else:
+                 house = "N/A"
 
-        # either a Commons or Lords portcullis which designates which house of Parliament this mention was made
-        house = mention.find("img")["alt"]
+            added_column = search_query
+            name = mention.find('div', class_="secondaryTitle").text
+            date = mention.find('div', class_="").get_text(strip=True)
 
-        #  and we then assign a text value to that image;
-        if house == "Lords Portcullis":
-            houses.append("House of Lords")
-        elif house == "Commons Portcullis":
-            houses.append("House of Commons")
-        else:
-            houses.append("N/A")
+            all_data.append({'Date': date, 'Search Query': added_column, 'House': house, 'Speaker': name, 'Topic': topic})
 
-        # which MP or Lord mentionned civilian casualties;
-        name = mention.find('div', class_="secondaryTitle").text
-        names.append(name)
+    df = pd.DataFrame(all_data)
+    print(df)
 
-        # the date this mention was made;
-        date = mention.find('div', class_="").text
-        dates.append(date)
-
-# turns your data into proper columns
-hansard_dataset = pd.DataFrame(
-    {'Date': dates, 'House': houses, 'Speaker': names, 'Topic': topics})
-
-# allows us to check if we collected the correct amount of data we were expecting
-print(hansard_dataset.info())
-
-print("Turning this into a CSV...")
-
-time.sleep(1)
-
-# converts your pandas dataframe into a proper csv, separated with a hashtag to allow for easy delimitation when imported into an Excel spreadsheet or Google Sheet
-hansard_dataset.to_csv('hansard.csv', index=False, sep="#")
-
-# data this scraper collects with still need to be cleaned, but it's a good start 
+    # Converts our pandas dataframe into a nice CSV, columns separated by a hashtag.
+    df.to_csv(search_query + '.csv', index=False, sep="#")
