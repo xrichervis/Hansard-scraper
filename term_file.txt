@@ -1,22 +1,38 @@
 civilian death
-civilian fatalities
 civilian deaths
-civilian casualties
+civilian fatality
+civilian fatalities
 civilian casualty
-non combatant
-noncombatant
+civilian casualties
 innocent civilian
 innocent civilians
-innocent Iraqi
-innocent Iraqis
-innocent Syrian
-innocent Syrians
-iraqi civilians
-syrian civilians
-lebanese civilians
-afghan civilians
-attacks on aid/health facilities
-cluster munitions
-cluster bombs
-deaths of civilians
+Iraqi civilian
+Iraqi civilians
+Syrian civilian
+Syrian civilians
+Afghan civilian
+Afghan civilians
+Lebanese civilian
+Lebanese civilians
+Palestinian civilian
+Palestinian civilians
+Israeli civilian
+Israeli civilians
+Yemeni civilians
+Kurdish civilian
+Kurdish civilians
+Iranian civilian
+Iranian civilians
+Innocent Iraqis
+Innocent Syrians
+Innocent Afghans
+Innocent Lebanese
+Innocent Palestinians
+Innocent Israelis
+Innocent Yemenis
+Innocent Kurds
+Innocent Iranians
+attacks on aid
+attacks on health
 attacks on civilians
+deaths of civilians
